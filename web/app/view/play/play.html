@@ -1,0 +1,7 @@
+<div data-ng-controller="PlayController">
+    <h1>Hello,World</h1>
+    <p>{{playContext.player.name}} is at coordinate ({{playContext.player.position.x}}, {{playContext.player.position.y}})</p>
+    <br>
+    <cartograph position="playContext.player.position"></cartograph>
+    <command position="playContext.player.position"></command>
+</div>

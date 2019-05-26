@@ -1,0 +1,17 @@
+<div ng-controller="ViewLoginCtrl">
+    <h2>Login</h2>
+    <form name="form" ng-submit="login()">
+        <div class="form-group" ng-class="{ 'has-error': form.username.$dirty && form.username.$error.required }">
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" ng-model="data.username" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" ng-model="data.password" required />
+        </div>
+        <div class="form-actions">
+            <button type="submit">Login</button>
+            <a href="#!/register" class="btn btn-link">Register</a>
+        </div>
+    </form>
+</div>
