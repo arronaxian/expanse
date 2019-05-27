@@ -31,13 +31,12 @@ public class CommandProcess {
         log.info("Process sequence start '{}'", sequence.name());
 
         final StringBuilder sequenceLog = new StringBuilder(sequence.name() + " -> ");
+
         final List<Command> commandSequence = buildSequence(sequence);
         DefaultContext.fromContext(context).get().setAdapter(adapter);
         CommandResult result = null;
         for ( Command command : commandSequence ) {
-            result = execute(context, command);
-            sequenceLog.append(result);
-            sequenceLog.append(" -> ");
+            result = execute(context, command, sequenceLog);
 
             if ( !result.isSuccess() ) {
                 break;
@@ -70,10 +69,20 @@ public class CommandProcess {
         switch ( sequence ) {
             case register:
                 // Register a Player with a User
-                return List.of(CommandEffects.preparePlayer, CommandPlayer.create, CommandPlayer.get, CommandUser.addPlayer);
+                return List.of(
+                        SequenceCommand.create("CommandEffects.preparePlayer", CommandEffects.preparePlayer),
+                        SequenceCommand.create("CommandPlayer.create", CommandPlayer.create),
+                        SequenceCommand.create("CommandPlayer.get", CommandPlayer.get),
+                        SequenceCommand.create("CommandUser.addPlayer", CommandUser.addPlayer)
+                );
             case move:
                 // Move a Player
-                return List.of(CommandPlayer.get, CommandCartograph.heading, CommandEffects.movePlayer, CommandPlayer.set);
+                return List.of(
+                        SequenceCommand.create("CommandPlayer.get", CommandPlayer.get),
+                        SequenceCommand.create("CommandCartograph.heading", CommandCartograph.heading),
+                        SequenceCommand.create("CommandEffects.movePlayer", CommandEffects.movePlayer),
+                        SequenceCommand.create("CommandPlayer.set", CommandPlayer.set)
+                );
             case none:
             default:
                 return Collections.EMPTY_LIST;
@@ -87,7 +96,7 @@ public class CommandProcess {
      *
      * @return A CommandResult instance.
      */
-    private CommandResult execute(Context context, Command command) {
+    private CommandResult execute(Context context, Command command, StringBuilder sequenceLog) {
         CommandResult result = null;
         final Future<CommandResult> future = executor.submit(() -> command.execute(context));
         try {
@@ -112,6 +121,10 @@ public class CommandProcess {
         if ( result == null ) {
             result = new CommandResult("CommandProcess.unknown", CommandResult.Status.error, false);
         }
+
+        sequenceLog.append(command);
+
+        sequenceLog.append(" -> ");
 
         return result;
     }

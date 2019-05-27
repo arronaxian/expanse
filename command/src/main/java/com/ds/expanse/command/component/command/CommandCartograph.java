@@ -1,6 +1,9 @@
 package com.ds.expanse.command.component.command;
 
+import com.ds.expanse.command.component.utility.RestClient;
 import com.ds.expanse.command.model.spi.cartograph.MapGrid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -9,38 +12,26 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Command cartograph requests data for mappings.
  */
 public interface CommandCartograph {
-    public static final int PORT_NUMBER = 9092;
-    public static final String HOST = "localhost";
-    public static final String SCHEME = "http";
+    Logger log = LogManager.getLogger(CommandCartograph.class);
+    int PORT_NUMBER = 9092;
 
     Command heading = (context) -> {
-        String URL_MOVE = "cartograph/heading";
+        CommandResult  result = new CommandResult("CommandCartograph.heading");
 
-        DefaultContext defaultContext = (DefaultContext)context;
+        DefaultContext.fromContext(context).ifPresent(defaultContext -> {
+            RestClient<MapGrid> restClient = RestClient.create(PORT_NUMBER, "cartograph/heading");
+            restClient.addQueryParameter("x", defaultContext.getPlayer().getPosition().getX());
+            restClient.addQueryParameter("y", defaultContext.getPlayer().getPosition().getY());
+            restClient.addQueryParameter("h", defaultContext.getCommand());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            restClient.get(MapGrid.class, 200)
+                    .ifPresent(mapGrid -> {
+                        defaultContext.setMapGrid(mapGrid);
+                        result.setCode(200);
+                        result.setSuccess(true);
+                    });
+        });
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(URL_MOVE)
-                .port(PORT_NUMBER)
-                .host(HOST)
-                .scheme(SCHEME)
-                .queryParam("x", defaultContext.getPlayer().getPosition().getX())
-                .queryParam("y", defaultContext.getPlayer().getPosition().getY())
-                .queryParam("h", defaultContext.getCommand());
-
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MapGrid> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, MapGrid.class);
-
-        if ( response.hasBody() ) {
-            defaultContext.setMapGrid(response.getBody());
-        }
-
-        boolean isOk = ((ResponseEntity<MapGrid>) response).getStatusCode() == HttpStatus.OK;
-        int code = ((ResponseEntity<MapGrid>) response).getStatusCode().value();
-
-        return new CommandResult("CommandCartograph.heading", code, isOk);
+        return result;
     };
 }

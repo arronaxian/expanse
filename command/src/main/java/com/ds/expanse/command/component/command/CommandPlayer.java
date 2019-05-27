@@ -18,12 +18,12 @@ public interface CommandPlayer {
     Command create = (context) -> {
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.create start");
 
-        final RestClient restClient = new RestClient(PORT_NUMBER);
+        final RestClient restClient = RestClient.create(PORT_NUMBER, "/player/register");
 
         CommandResult result = new CommandResult("CommandPlayer.create");
         DefaultContext.fromContext(context)
                 .ifPresent(defaultContext -> {
-                    result.setSuccess(restClient.post("/player/register", defaultContext.getPlayer(), 201));
+                    result.setSuccess(restClient.post(defaultContext.getPlayer(), 201));
                 });
 
         result.setCode(restClient.getStatusCode());
@@ -39,12 +39,12 @@ public interface CommandPlayer {
     Command set = (context) -> {
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.set");
 
-        final RestClient restClient = new RestClient(PORT_NUMBER);
+        final RestClient restClient = RestClient.create(PORT_NUMBER, "/player");
 
         CommandResult result = new CommandResult("CommandPlayer.set");
         DefaultContext.fromContext(context)
                 .ifPresent(defaultContext -> {
-                    result.setSuccess(restClient.post("/player", defaultContext.getPlayer(), 200));
+                    result.setSuccess(restClient.post(defaultContext.getPlayer(), 200));
                 });
 
         result.setCode(restClient.getStatusCode());
@@ -60,13 +60,13 @@ public interface CommandPlayer {
     Command get = (context) -> {
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.get");
 
-        final RestClient<Player> restClient = new RestClient<>(PORT_NUMBER);
+        final RestClient<Player> restClient = RestClient.create(PORT_NUMBER, "/player/{name}");
 
         CommandResult result = new CommandResult("CommandPlayer.get");
         DefaultContext.fromContext(context)
                 .ifPresent(defaultContext -> {
                     restClient.addURIParameters("name", defaultContext.getSourcePlayer().getName());
-                    restClient.get("/player/{name}", Player.class,200)
+                    restClient.get(Player.class,200)
                         .ifPresent(player -> {
                             defaultContext.setPlayer(player);
                             result.setSuccess(true);

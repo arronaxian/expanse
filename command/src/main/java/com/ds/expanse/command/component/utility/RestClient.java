@@ -25,111 +25,136 @@ public class RestClient<T> {
     private HttpHeaders headers = new HttpHeaders();
     @Getter private ResponseEntity response;
 
-    private Map<String,String> uriParameters = new HashMap<>();
-    private Map<String,String> queryParameters = new HashMap<>();
+    private Map<String,Object> uriParameters = new HashMap<>();
 
-    private final int port;
+    private String resolvedURI = "<not set>";
 
-    private String resolvedURI;
+    @Getter private boolean isValidStatus = false;
 
-    @Getter private boolean isOk = false;
+    private UriComponentsBuilder builder;
 
-    public RestClient(int port) {
-        this.port = port;
-
+    RestClient() {
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     }
 
-    public static RestClient create(int port) {
-        return new RestClient(port);
-    }
+    RestClient(int port, String path) {
+        this();
 
-    public final boolean put(String path, int ... validStatusCodes) {
-        log.info("RestClient.put {}", path);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
+        builder = UriComponentsBuilder.fromPath(path)
                 .port(port)
                 .host(HOST)
                 .scheme(SCHEME);
+    }
 
+    /**
+     * Creates a RestClient for the port and path.
+     * @param port The port of the external resource.
+     * @param path The path to the external resource.
+     * @return
+     */
+    public static RestClient create(int port, String path) {
+        return new RestClient(port, path);
+    }
+
+    public final boolean put(int ... validStatusCodes) {
         HttpEntity<T> entity = new HttpEntity<>(headers);
-        RestTemplate restTemplate = new RestTemplate();
 
         // PUT
         final URI uri = builder.buildAndExpand(uriParameters).toUri();
         resolvedURI = uri.toString();
 
-        response = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
-        isOk = isResponseValid(validStatusCodes);
+        log.info("RestClient.put {}", resolvedURI);
 
-        return isOk;
+        response = new RestTemplate().exchange(uri, HttpMethod.PUT, entity, String.class);
+
+        isValidStatus = isResponseValid(validStatusCodes);
+
+        return isValidStatus;
     }
 
-    public final boolean post(String path, T postHttpEntity, int ... validStatusCodes) {
-        log.info("RestClient.post {}", path);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
-                .port(port)
-                .host(HOST)
-                .scheme(SCHEME);
-
+    public final boolean post(T postHttpEntity, int ... validStatusCodes) {
         HttpEntity<T> entity = new HttpEntity<>(postHttpEntity, headers);
-        RestTemplate restTemplate = new RestTemplate();
 
         URI uri = builder.build().toUri();
         resolvedURI = uri.toString();
 
-        response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+        response = new RestTemplate().exchange(uri, HttpMethod.POST, entity, String.class);
 
-        isOk = isResponseValid(validStatusCodes);
+        isValidStatus = isResponseValid(validStatusCodes);
 
-        return isOk;
+        log.info("RestClient.post {}", this::toString);
+
+        return isValidStatus;
     }
 
-    public final Optional<T> get(String path, Class responseEntityClass, int ... validStatusCodes) {
-        if ( log.isInfoEnabled() ) log.info("RestClient.get {}", path);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(path)
-                .port(port)
-                .host(HOST)
-                .scheme(SCHEME);
-
-        HttpEntity<T> entity = new HttpEntity<>(headers);
-        RestTemplate restTemplate = new RestTemplate();
+    /**
+     * Gets the requested entity class.
+     * @param responseEntityClass The expected response entity class.
+     * @param validStatusCodes The set of valid status codes.
+     * @return The Optional wrapped entity response.
+     */
+    public final Optional<T> get(Class responseEntityClass, int ... validStatusCodes) {
+        final HttpEntity<T> entity = new HttpEntity<>(headers);
 
         final URI uri = builder.buildAndExpand(uriParameters).toUri();
         resolvedURI = uri.toString();
 
-        response = restTemplate.exchange(uri, HttpMethod.GET, entity, responseEntityClass);
+        response = new RestTemplate().exchange(uri, HttpMethod.GET, entity, responseEntityClass);
 
-        return isResponseValid(validStatusCodes) ? Optional.ofNullable((T)response.getBody()) : Optional.empty();
+        isValidStatus = isResponseValid(validStatusCodes) && response.hasBody();
+
+        if ( log.isInfoEnabled() ) log.info("RestClient.get {}", resolvedURI);
+
+        return isValidStatus ? Optional.ofNullable((T)response.getBody()) : Optional.empty();
     }
 
-    public void addURIParameters(String name, String value) {
+    /**
+     * Adds a new URI parameter where path is /path1/{name}/path2 becomes /path1/foobar/path2
+     *
+     * @param name The {name} to substitute with value
+     * @param value The value for the path element.
+     */
+    public void addURIParameters(String name, Object value) {
         uriParameters.put(name, value);
     }
 
-    public void addQueryParameters(String name, String value) { queryParameters.put(name, value); }
+    /**
+     * Adds a query parameter "?name1=value1&name2=value2&...nameN=valueN'
+     * @param name The name of the query parameter
+     * @param value The value of the query parameter
+     */
+    public void addQueryParameter(String name, Object value) {
+        builder.queryParam(name, value);
+    }
 
     public void addHeader(String name, @Nullable String value) {
         headers.add(name, value);
     }
 
     public Optional<T> getBody() {
-        return Optional.of((T)response.getBody());
+        return Optional.ofNullable((T)response.getBody());
     }
 
     public int getStatusCode() {
-        return response.getStatusCode().value();
+        if ( response == null ) {
+            return 0;
+        } else {
+            return response.getStatusCode().value();
+        }
     }
 
     public String toString() {
-        return "RestClient :" + resolvedURI + " status :" + getStatusCode() + " success :" + isOk;
+        return "RestClient :" + resolvedURI + " status :" + getStatusCode() + " success :" + isValidStatus;
+    }
+
+    /**
+     * Is tehe response valid.
+     * @param validStatusCodes The valid status codes.
+     * @return True if valid, otherwise false.
+     */
+    private boolean isResponseValid(int[] validStatusCodes) {
+        return isResponseValid(validStatusCodes, false);
     }
 
     /**
@@ -137,7 +162,11 @@ public class RestClient<T> {
      * @param validStatusCodes an array of valid status codes.
      * @return True if valid, otherwise false.
      */
-    private boolean isResponseValid(int[] validStatusCodes) {
+    private boolean isResponseValid(int[] validStatusCodes, boolean expectBody) {
+        if ( expectBody && !response.hasBody() ) {
+            return false;
+        }
+
         if ( validStatusCodes != null ) {
             // Validate the response codes.
             final int responseStatusCode = response.getStatusCodeValue();
