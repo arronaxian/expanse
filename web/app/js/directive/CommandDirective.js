@@ -10,35 +10,35 @@ expanseApp.directive('command', ['CommandService', function(commandService) {
                 command : ''
             };
 
-            var heading;
             $scope.onCommand = function($event, command) {
+                var heading;
+
                 if ( command === 'press' ) {
                     if ($scope.commandContext.command === 'w') {
-                        $scope.commandContext.command = '';
                         heading = 'north';
                     }
                     if ($scope.commandContext.command === 's') {
-                        $scope.commandContext.command = '';
                         heading = 'south';
                     }
                     if ($scope.commandContext.command === 'a') {
-                        $scope.commandContext.command = '';
                         heading = 'west';
                     }
                     if ($scope.commandContext.command === 'd') {
-                        $scope.commandContext.command = '';
                         heading = 'east';
                     }
+
+                    // Hard coded until registration works properly.
+                    commandService.movePlayer('buttercup001', heading, function(response, status) {
+                        if ( status === 200 ) {
+                            console.log("command:onCommand " + heading);
+
+                            $scope.position.x = response.x;
+                            $scope.position.y = response.y;
+                        }
+
+                        $scope.commandContext.command = '';
+                    });
                 }
-
-                commandService.movePlayer('buttercup001', heading, function(response, status) {
-                    if ( status === 200 ) {
-                        console.log("command:onCommand " + heading);
-
-                        $scope.position.x = response.x;
-                        $scope.position.y = response.y;
-                    }
-                });
             }
         }],
         templateUrl: 'js/directive/commandTemplate.html'

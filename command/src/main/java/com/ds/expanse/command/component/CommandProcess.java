@@ -27,27 +27,25 @@ public class CommandProcess {
 
     public enum Sequence { none, register, move, view };
 
-    public CommandResult process(Sequence sequence, Context context) {
+    public Result process(Sequence sequence, Context context) {
         log.info("Process sequence start '{}'", sequence.name());
 
         final StringBuilder sequenceLog = new StringBuilder(sequence.name() + " -> ");
 
         final List<Command> commandSequence = buildSequence(sequence);
         DefaultContext.fromContext(context).get().setAdapter(adapter);
-        CommandResult result = null;
+        Result<Boolean> result = null;
         for ( Command command : commandSequence ) {
             result = execute(context, command, sequenceLog);
 
-            if ( !result.isSuccess() ) {
+            if ( !result.outcome() ) {
                 break;
             }
         }
 
-        sequenceLog.append("[");
-        sequenceLog.append(result.isSuccess());
-        sequenceLog.append("]");
+        sequenceLog.append(result);
 
-        if ( result.isSuccess() ) {
+        if ( result.outcome() ) {
             log.info("Process sequence completed '{}'", sequenceLog);
         } else {
             log.error("Process sequence failed '{}'", sequenceLog);
@@ -96,30 +94,29 @@ public class CommandProcess {
      *
      * @return A CommandResult instance.
      */
-    private CommandResult execute(Context context, Command command, StringBuilder sequenceLog) {
-        CommandResult result = null;
-        final Future<CommandResult> future = executor.submit(() -> command.execute(context));
+    private Result execute(Context context, Command command, StringBuilder sequenceLog) {
+        Result result = null;
+        final Future<Result> future = executor.submit(() -> command.execute(context));
         try {
             result = future.get(FUTURE_TIMEOUT_IN_SECONDS, TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException e) {
             log.error("CommandProcess.execute failed ", e);
 
-            result = new CommandResult("CommandProcess.execute", CommandResult.Status.error, false);
+            result = CommandResult.badRequest("CommandProcess.execute");
         } catch (TimeoutException e) {
-            log.error("CommandProcess.execute failed ", e);
-
+            log.error("CommandProcess.timeout failed - {}", e.getMessage());
             future.cancel(true);
 
-            result = new CommandResult("CommandProcess.timeout", CommandResult.Status.error, false);
+            result = CommandResult.gateway("CommandProcess.timeout");
         } catch ( Throwable e ) {
             log.error("CommandProcess.execute failed ", e);
 
-            result = new CommandResult("CommandProcess.runtime", CommandResult.Status.error, false);
+            result = CommandResult.error("CommandProcess.runtime");
         }
 
         // This shouldn't happen, but CYA.
         if ( result == null ) {
-            result = new CommandResult("CommandProcess.unknown", CommandResult.Status.error, false);
+            result = CommandResult.error("CommandProcess.unknown");
         }
 
         sequenceLog.append(command);

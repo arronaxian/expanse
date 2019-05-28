@@ -9,13 +9,12 @@ import java.util.function.Consumer;
 public class Sequence<T> implements Iterable {
     final List<T> sequence = new ArrayList<>();
 
-    Sequence() {
+    public Sequence() {
     }
 
     public void add(T task) {
         sequence.add(task);
     }
-
 
     @Override
     public Iterator iterator() {

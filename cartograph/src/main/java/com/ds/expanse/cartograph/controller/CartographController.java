@@ -56,8 +56,8 @@ public class CartographController {
         int lowerRightY = centerY + areaY;
 
         // row[x],column[y]
-        for ( int y = upperLeftY; y < lowerRightY; y++ ) {
-            for ( int x = upperLeftX; x < lowerRightX; x ++ ) {
+        for ( int y = upperLeftY; y <= lowerRightY; y++ ) {
+            for ( int x = upperLeftX; x <= lowerRightX; x ++ ) {
                 range.add(cartograph.getPerlinMapGrid(x,y));
             }
         }

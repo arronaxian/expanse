@@ -3,6 +3,7 @@ package com.ds.expanse.command.service;
 import com.ds.expanse.command.component.CommandProcess;
 import com.ds.expanse.command.component.command.CommandResult;
 import com.ds.expanse.command.component.command.DefaultContext;
+import com.ds.expanse.command.component.command.Result;
 import com.ds.expanse.command.model.spi.player.Player;
 import com.ds.expanse.command.model.spi.player.PlayerPosition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ public class CommandControllerService {
     @Autowired
     CommandProcess processor;
 
-
     /**
      * Change the player position relative by units.
      * @param playerName The name of the player to change.
@@ -27,9 +27,9 @@ public class CommandControllerService {
         final DefaultContext context = new DefaultContext(heading);
         context.setSourcePlayer(new Player(playerName));
 
-        CommandResult result = processor.process(CommandProcess.Sequence.move, context);
+        Result<Boolean> result = processor.process(CommandProcess.Sequence.move, context);
 
-        return result.isSuccess() ?
+        return result.outcome() ?
                 Optional.ofNullable(context.getPlayer().getPosition()) :
                 Optional.empty();
     }
@@ -44,9 +44,9 @@ public class CommandControllerService {
         final DefaultContext context = new DefaultContext(userName, "create");
         context.setSourcePlayer(player);
 
-        final CommandResult result = processor.process(CommandProcess.Sequence.register, context);
+        final Result<Boolean> result = processor.process(CommandProcess.Sequence.register, context);
 
-        return result.isSuccess() ?
+        return result.outcome() ?
                 Optional.ofNullable(context.getPlayer()) :
                 Optional.empty();
     }

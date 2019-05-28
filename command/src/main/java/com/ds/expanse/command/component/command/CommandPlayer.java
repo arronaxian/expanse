@@ -20,13 +20,13 @@ public interface CommandPlayer {
 
         final RestClient restClient = RestClient.create(PORT_NUMBER, "/player/register");
 
-        CommandResult result = new CommandResult("CommandPlayer.create");
+        CommandResult result = CommandResult.badRequest("CommandPlayer.create");
         DefaultContext.fromContext(context)
                 .ifPresent(defaultContext -> {
-                    result.setSuccess(restClient.post(defaultContext.getPlayer(), 201));
+                    restClient.post(defaultContext.getPlayer(), 201);
                 });
 
-        result.setCode(restClient.getStatusCode());
+        result.setOutcome(restClient.getStatusCode(), restClient.isValidStatus());
 
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.create complete {}", restClient);
 
@@ -41,15 +41,15 @@ public interface CommandPlayer {
 
         final RestClient restClient = RestClient.create(PORT_NUMBER, "/player");
 
-        CommandResult result = new CommandResult("CommandPlayer.set");
+        CommandResult result = CommandResult.badRequest("CommandPlayer.set");
         DefaultContext.fromContext(context)
                 .ifPresent(defaultContext -> {
-                    result.setSuccess(restClient.post(defaultContext.getPlayer(), 200));
+                    restClient.post(defaultContext.getPlayer(), 200);
                 });
 
-        result.setCode(restClient.getStatusCode());
+        result.setOutcome(restClient.getStatusCode(), restClient.isValidStatus());
 
-        if ( log.isInfoEnabled() ) log.info("CommandPlayer.set {}" + restClient);
+        if ( log.isInfoEnabled() ) log.info("CommandPlayer.set {}", restClient);
 
         return result;
     };
@@ -62,18 +62,17 @@ public interface CommandPlayer {
 
         final RestClient<Player> restClient = RestClient.create(PORT_NUMBER, "/player/{name}");
 
-        CommandResult result = new CommandResult("CommandPlayer.get");
+        CommandResult result = CommandResult.badRequest("CommandPlayer.get");
         DefaultContext.fromContext(context)
                 .ifPresent(defaultContext -> {
                     restClient.addURIParameters("name", defaultContext.getSourcePlayer().getName());
                     restClient.get(Player.class,200)
                         .ifPresent(player -> {
                             defaultContext.setPlayer(player);
-                            result.setSuccess(true);
                         });
                 });
 
-        result.setCode(restClient.getStatusCode());
+        result.setOutcome(restClient.getStatusCode(), restClient.isValidStatus());
 
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.get {}", restClient);
 

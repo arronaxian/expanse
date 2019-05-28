@@ -9,7 +9,7 @@ public class SequenceCommand implements Command {
     @Getter String name;
     @Getter Command command;
 
-    CommandResult result;
+    Result result;
 
     SequenceCommand(String name, Command command) {
         this.name = name;
@@ -21,7 +21,7 @@ public class SequenceCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(Context context) {
+    public Result execute(Context context) {
         result = command.execute(context);
 
         return result;
@@ -36,7 +36,7 @@ public class SequenceCommand implements Command {
         if ( result == null ) {
             builder.append("pending");
         } else {
-            builder.append(result.isSuccess());
+            builder.append(result.outcome());
         }
         builder.append("]");
 

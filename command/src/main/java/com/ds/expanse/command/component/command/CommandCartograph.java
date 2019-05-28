@@ -27,8 +27,7 @@ public interface CommandCartograph {
             restClient.get(MapGrid.class, 200)
                     .ifPresent(mapGrid -> {
                         defaultContext.setMapGrid(mapGrid);
-                        result.setCode(200);
-                        result.setSuccess(true);
+                        result.setOutcome(200, true);
                     });
         });
 

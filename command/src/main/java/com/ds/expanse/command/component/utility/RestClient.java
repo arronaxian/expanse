@@ -91,7 +91,7 @@ public class RestClient<T> {
     /**
      * Gets the requested entity class.
      * @param responseEntityClass The expected response entity class.
-     * @param validStatusCodes The set of valid status codes.
+     * @param validStatusCodes The set of valid outcome codes.
      * @return The Optional wrapped entity response.
      */
     public final Optional<T> get(Class responseEntityClass, int ... validStatusCodes) {
@@ -145,12 +145,12 @@ public class RestClient<T> {
     }
 
     public String toString() {
-        return "RestClient :" + resolvedURI + " status :" + getStatusCode() + " success :" + isValidStatus;
+        return "RestClient :" + resolvedURI + " outcome :" + getStatusCode() + " success :" + isValidStatus;
     }
 
     /**
      * Is tehe response valid.
-     * @param validStatusCodes The valid status codes.
+     * @param validStatusCodes The valid outcome codes.
      * @return True if valid, otherwise false.
      */
     private boolean isResponseValid(int[] validStatusCodes) {
@@ -158,8 +158,8 @@ public class RestClient<T> {
     }
 
     /**
-     * Is the response valid for the provided status codes.
-     * @param validStatusCodes an array of valid status codes.
+     * Is the response valid for the provided outcome codes.
+     * @param validStatusCodes an array of valid outcome codes.
      * @return True if valid, otherwise false.
      */
     private boolean isResponseValid(int[] validStatusCodes, boolean expectBody) {
@@ -176,7 +176,7 @@ public class RestClient<T> {
                 }
             }
 
-            log.warn("RestClient.isResponseValid invalid response status code {}",responseStatusCode);
+            log.warn("RestClient.isResponseValid invalid response outcome code {}",responseStatusCode);
         }
 
 

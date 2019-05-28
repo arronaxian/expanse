@@ -18,9 +18,10 @@ public interface CommandUser {
                 .ifPresent(defaultContext -> {
                     restClient.addURIParameters("username", defaultContext.getUserName());
                     restClient.addURIParameters("id", defaultContext.getPlayer().getId());
-                    result.setSuccess(restClient.put( 200));
-                    result.setCode(restClient.getStatusCode());
+                    restClient.put( 200);
                 });
+
+        result.setOutcome(restClient.getStatusCode(), restClient.isValidStatus());
 
         if (log.isInfoEnabled() ) log.info("CommandUser.addPlayer {}", restClient.isValidStatus());
 
