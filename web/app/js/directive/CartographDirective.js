@@ -6,6 +6,8 @@ expanseApp.directive('cartograph', function() {
         scope: {
             position : '=position'
         },
+        link:function($, scope, element) {
+        },
         controller : ['$scope', 'CartographService', function($scope, cartographService) {
             var that = this;
             that.areaSize = 1;

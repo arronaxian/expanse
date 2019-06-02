@@ -79,6 +79,7 @@ public class CommandResult implements Result<Boolean> {
         return new CommandResult(name, Status.gateway, false);
     }
 
+    public final static CommandResult forbidden(String name) { return new CommandResult(name, Status.forbidden, false); }
 
     @Override
     public String toString() {

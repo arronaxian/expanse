@@ -13,11 +13,11 @@ public interface CommandEffects {
      * Prepares a new Player.
      */
     Command preparePlayer = (context) -> {
-        DefaultContext.fromContext(context)
+        DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
                     Player player = new Player();
 
-                    player.setName(defaultContext.getSourcePlayer().getName());
+                    player.setName(defaultContext.getUserProvidedPlayer().getName());
 
                     PlayerPosition position = new PlayerPosition(50,50);
                     player.setPosition(position);
@@ -32,11 +32,11 @@ public interface CommandEffects {
      * Moves a Player.
      */
     Command movePlayer = (context) -> {
-        final DefaultContext defaultContext = DefaultContext.fromContext(context).get();
+        final DefaultContext defaultContext = DefaultContext.of(context).get();
         final MapGrid grid = defaultContext.getMapGrid();
 
         final CommandResult result = new CommandResult("CommandEffects.movePlayer");
-        if ( defaultContext.getAdapter().canMove(defaultContext.getPlayer(), grid) ) {
+        if ( defaultContext.getEngineAdapter().canMove(defaultContext.getPlayer(), grid) ) {
             PlayerPosition position = defaultContext.getPlayer().getPosition();
             position.setX(grid.getCoordinate().getX());
             position.setY(grid.getCoordinate().getY());

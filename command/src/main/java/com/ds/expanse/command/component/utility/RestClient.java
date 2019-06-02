@@ -23,13 +23,10 @@ public class RestClient<T> {
     public final static String HOST = "localhost";
 
     private HttpHeaders headers = new HttpHeaders();
-    @Getter private ResponseEntity response;
-
     private Map<String,Object> uriParameters = new HashMap<>();
-
     private String resolvedURI = "<not set>";
-
     @Getter private boolean isValidStatus = false;
+    @Getter private ResponseEntity response;
 
     private UriComponentsBuilder builder;
 
@@ -104,7 +101,7 @@ public class RestClient<T> {
 
         isValidStatus = isResponseValid(validStatusCodes) && response.hasBody();
 
-        if ( log.isInfoEnabled() ) log.info("RestClient.get {}", resolvedURI);
+        if ( log.isInfoEnabled() ) log.info("RestClient.search {}", resolvedURI);
 
         return isValidStatus ? Optional.ofNullable((T)response.getBody()) : Optional.empty();
     }
@@ -116,7 +113,9 @@ public class RestClient<T> {
      * @param value The value for the path element.
      */
     public void addURIParameters(String name, Object value) {
-        uriParameters.put(name, value);
+        if ( name != null && value != null ) {
+            uriParameters.put(name, value);
+        }
     }
 
     /**
@@ -125,11 +124,15 @@ public class RestClient<T> {
      * @param value The value of the query parameter
      */
     public void addQueryParameter(String name, Object value) {
-        builder.queryParam(name, value);
+        if ( name != null && value != null ) {
+            builder.queryParam(name, value);
+        }
     }
 
     public void addHeader(String name, @Nullable String value) {
-        headers.add(name, value);
+        if ( name != null && value != null ) {
+            headers.add(name, value);
+        }
     }
 
     public Optional<T> getBody() {

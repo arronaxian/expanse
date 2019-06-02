@@ -1,5 +1,6 @@
 package com.ds.expanse.user.controller;
 
+import ch.qos.logback.core.pattern.util.RegularEscapeUtil;
 import com.ds.expanse.user.model.User;
 import com.ds.expanse.user.service.UserControllerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.websocket.server.PathParam;
 import java.net.URI;
 import java.security.Principal;
+import java.util.Set;
 
 @RestController
 @RequestMapping(path="/user")
@@ -54,6 +56,17 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+
+    /**
+     * Gets a User's Player Ids
+     * @param username The name of the user.
+     * @return A list of Player Ids, otherwise empty.
+     */
+    @GetMapping("/{username}/player")
+    public ResponseEntity getPlayersIds(@PathVariable(name = "username", required = true) String username) {
+        return ResponseEntity.ok(service.getPlayersIds(username));
     }
 
     @DeleteMapping("player/{id}")

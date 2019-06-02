@@ -1,31 +1,36 @@
 package com.ds.expanse.command.component;
 
-import com.ds.expanse.command.component.adapter.CommandProcessEngineAdapter;
+import com.ds.expanse.command.component.adapter.EngineAdapter;
+import com.ds.expanse.command.component.adapter.SecurityAdapter;
 import com.ds.expanse.command.component.command.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * Command processes a Command workflow.  A workflow is a series of requests, effects (mutation) and
+ * Command processes a Command workflow.  A workflow is a series of requests, effects and
  * result.
  */
 @Component
 public class CommandProcess {
     @Autowired
-    private CommandProcessEngineAdapter adapter;
+    private EngineAdapter engineAdapter;
+
+    @Autowired
+    private SecurityAdapter securityAdapter;
 
     private final static Logger log = LogManager.getLogger(CommandProcess.class);
 
     private final static ExecutorService executor = Executors.newFixedThreadPool(5);
     private final static int FUTURE_TIMEOUT_IN_SECONDS = 1000;
 
-    public enum Sequence { none, register, move, view };
+    public enum Sequence { none, register, move, player, view };
 
     public Result process(Sequence sequence, Context context) {
         log.info("Process sequence start '{}'", sequence.name());
@@ -33,7 +38,10 @@ public class CommandProcess {
         final StringBuilder sequenceLog = new StringBuilder(sequence.name() + " -> ");
 
         final List<Command> commandSequence = buildSequence(sequence);
-        DefaultContext.fromContext(context).get().setAdapter(adapter);
+
+        DefaultContext.of(context).get().setEngineAdapter(engineAdapter);
+        DefaultContext.of(context).get().setSecurityAdapter(securityAdapter);
+
         Result<Boolean> result = null;
         for ( Command command : commandSequence ) {
             result = execute(context, command, sequenceLog);
@@ -70,16 +78,23 @@ public class CommandProcess {
                 return List.of(
                         SequenceCommand.create("CommandEffects.preparePlayer", CommandEffects.preparePlayer),
                         SequenceCommand.create("CommandPlayer.create", CommandPlayer.create),
-                        SequenceCommand.create("CommandPlayer.get", CommandPlayer.get),
+                        SequenceCommand.create("CommandPlayer.search", CommandPlayer.search),
                         SequenceCommand.create("CommandUser.addPlayer", CommandUser.addPlayer)
                 );
             case move:
                 // Move a Player
                 return List.of(
-                        SequenceCommand.create("CommandPlayer.get", CommandPlayer.get),
+                        SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
+                        SequenceCommand.create("CommandPlayer.search", CommandPlayer.search),
                         SequenceCommand.create("CommandCartograph.heading", CommandCartograph.heading),
                         SequenceCommand.create("CommandEffects.movePlayer", CommandEffects.movePlayer),
                         SequenceCommand.create("CommandPlayer.set", CommandPlayer.set)
+                );
+            case player:
+                // Get a Player
+                return List.of(
+                        SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
+                        SequenceCommand.create("CommandPlayer.search", CommandPlayer.search)
                 );
             case none:
             default:
@@ -102,7 +117,11 @@ public class CommandProcess {
         } catch (ExecutionException | InterruptedException e) {
             log.error("CommandProcess.execute failed ", e);
 
-            result = CommandResult.badRequest("CommandProcess.execute");
+            if ( e.getCause() instanceof HttpClientErrorException.Forbidden ) {
+                result = CommandResult.forbidden("CommandProcess.execute");
+            } else {
+                result = CommandResult.badRequest("CommandProcess.execute");
+            }
         } catch (TimeoutException e) {
             log.error("CommandProcess.timeout failed - {}", e.getMessage());
             future.cancel(true);

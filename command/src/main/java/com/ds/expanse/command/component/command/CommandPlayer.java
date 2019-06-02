@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
  */
 public interface CommandPlayer {
     Logger log = LogManager.getLogger(CommandPlayer.class);
-    final int PORT_NUMBER = 9090;
+    int PORT_NUMBER = 9090;
 
     /**
      * Creates a new Player.
@@ -18,11 +18,12 @@ public interface CommandPlayer {
     Command create = (context) -> {
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.create start");
 
-        final RestClient restClient = RestClient.create(PORT_NUMBER, "/player/register");
+        final RestClient<Player> restClient = RestClient.create(PORT_NUMBER, "/player/register");
 
         CommandResult result = CommandResult.badRequest("CommandPlayer.create");
-        DefaultContext.fromContext(context)
+        DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
+                    defaultContext.getSecurityAdapter().addSecurityHeaders(defaultContext.getUserName(), restClient);
                     restClient.post(defaultContext.getPlayer(), 201);
                 });
 
@@ -39,11 +40,12 @@ public interface CommandPlayer {
     Command set = (context) -> {
         if ( log.isInfoEnabled() ) log.info("CommandPlayer.set");
 
-        final RestClient restClient = RestClient.create(PORT_NUMBER, "/player");
+        final RestClient<Player> restClient = RestClient.create(PORT_NUMBER, "/player");
 
         CommandResult result = CommandResult.badRequest("CommandPlayer.set");
-        DefaultContext.fromContext(context)
+        DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
+                    defaultContext.getSecurityAdapter().addSecurityHeaders(defaultContext.getUserName(), restClient);
                     restClient.post(defaultContext.getPlayer(), 200);
                 });
 
@@ -55,17 +57,19 @@ public interface CommandPlayer {
     };
 
     /**
-     * Gets an existing Player.
+     * Searches an existing Player by Name.
      */
-    Command get = (context) -> {
-        if ( log.isInfoEnabled() ) log.info("CommandPlayer.get");
+    Command search = (context) -> {
+        if ( log.isInfoEnabled() ) log.info("CommandPlayer.search");
 
-        final RestClient<Player> restClient = RestClient.create(PORT_NUMBER, "/player/{name}");
+        final RestClient<Player> restClient = RestClient.create(PORT_NUMBER, "/player");
 
-        CommandResult result = CommandResult.badRequest("CommandPlayer.get");
-        DefaultContext.fromContext(context)
+        CommandResult result = CommandResult.badRequest("CommandPlayer.search");
+        DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
-                    restClient.addURIParameters("name", defaultContext.getSourcePlayer().getName());
+                    defaultContext.getSecurityAdapter().addSecurityHeaders(defaultContext.getUserName(), restClient);
+                    restClient.addQueryParameter("id", defaultContext.getPlayer().getId());
+                    restClient.addQueryParameter("name", defaultContext.getPlayer().getName());
                     restClient.get(Player.class,200)
                         .ifPresent(player -> {
                             defaultContext.setPlayer(player);
@@ -74,7 +78,7 @@ public interface CommandPlayer {
 
         result.setOutcome(restClient.getStatusCode(), restClient.isValidStatus());
 
-        if ( log.isInfoEnabled() ) log.info("CommandPlayer.get {}", restClient);
+        if ( log.isInfoEnabled() ) log.info("CommandPlayer.search {}", restClient);
 
         return result;
     };

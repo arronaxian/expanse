@@ -1,7 +1,6 @@
 package com.ds.expanse.command.service;
 
 import com.ds.expanse.command.component.CommandProcess;
-import com.ds.expanse.command.component.command.CommandResult;
 import com.ds.expanse.command.component.command.DefaultContext;
 import com.ds.expanse.command.component.command.Result;
 import com.ds.expanse.command.model.spi.player.Player;
@@ -11,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * Command controller service.
+ */
 @Service
 public class CommandControllerService {
     @Autowired
@@ -25,7 +27,7 @@ public class CommandControllerService {
      */
     public Optional<PlayerPosition> changePlayerPosition(String user, String playerName, String heading, int units) {
         final DefaultContext context = new DefaultContext(heading);
-        context.setSourcePlayer(new Player(playerName));
+        context.setUserProvidedPlayer(new Player(playerName));
 
         Result<Boolean> result = processor.process(CommandProcess.Sequence.move, context);
 
@@ -42,7 +44,7 @@ public class CommandControllerService {
      */
     public Optional<Player> registerPlayer(String userName, Player player) {
         final DefaultContext context = new DefaultContext(userName, "create");
-        context.setSourcePlayer(player);
+        context.setUserProvidedPlayer(player);
 
         final Result<Boolean> result = processor.process(CommandProcess.Sequence.register, context);
 
@@ -50,4 +52,18 @@ public class CommandControllerService {
                 Optional.ofNullable(context.getPlayer()) :
                 Optional.empty();
     }
+
+    /**
+     * Get Player for User
+     */
+    public Optional<Player> getPlayer(String userName) {
+        final DefaultContext context = new DefaultContext(userName, "player");
+
+        final Result<Boolean> result = processor.process(CommandProcess.Sequence.player, context);
+
+        return result.outcome() ?
+                Optional.ofNullable(context.getPlayer()) :
+                Optional.empty();
+    }
+
 }

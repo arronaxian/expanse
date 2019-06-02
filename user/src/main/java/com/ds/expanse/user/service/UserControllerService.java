@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
+
+import java.util.*;
 
 @Service
 @Transactional
@@ -43,12 +44,28 @@ public class UserControllerService {
         return optional;
     }
 
+    /**
+     * Adds a Player Id to a User
+     * @param userName The name of the User
+     * @param playerId The Player Id
+     * @return True if successful, otherwise false.
+     */
     public boolean addPlayer(String userName, String playerId) {
         return userRepository.findByUsername(userName)
                 .map(foundUser -> {
                         foundUser.getPlayerIds().add(playerId);
                         return Optional.ofNullable(userRepository.save(foundUser));
                     }).isPresent();
+    }
+
+    /**
+     * Gets a User's Player Ids.
+     * @param userName The name of the user.
+     * @return A list of Player Ids, otherwise Empty Set.
+     */
+    public Set<String> getPlayersIds(String userName) {
+        return userRepository.findByUsername(userName)
+                .map(foundUser -> foundUser.getPlayerIds()).get();
     }
 
 }

@@ -28,12 +28,18 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                                     FilterChain chain) throws IOException, ServletException {
         String header = req.getHeader(HEADER_STRING);
 
+        // Do not allow without a valid token.
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {
-            chain.doFilter(req, res);
+            res.setStatus(403);
             return;
         }
 
+        // Do not allow without a valid token.
         UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
+        if ( authentication == null || authentication.getPrincipal() == null ) {
+            res.setStatus(403);
+            return;
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(req, res);

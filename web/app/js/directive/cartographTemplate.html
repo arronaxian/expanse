@@ -1,3 +1,8 @@
 <div data-ng-repeat="range in cartographContext.map track by $index">
     <span data-ng-repeat="grid in range track by $index">{{grid}}</span><br>
 </div>
+
+<div data-ng-repeat="range in cartographContext.map track by $index">
+    <img data-ng-repeat="grid in range track by $index" width="64px" height="64px" src="img/{{grid}}.svg">
+</div>
+

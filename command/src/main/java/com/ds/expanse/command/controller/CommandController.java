@@ -13,11 +13,26 @@ import java.util.Optional;
 
 import org.springframework.security.access.AccessDeniedException;
 
+/**
+ * Command REST controller.
+ */
 @RestController
 @RequestMapping(path="/command")
 public class CommandController {
     @Autowired
     private CommandControllerService service;
+
+    /**
+     * Gets the Player for the current User.
+     * @param principal The Principal entity.
+     * @return A Player entity.
+     */
+    @GetMapping("/player")
+    public ResponseEntity<Player> getPlayer(Principal principal) {
+        return service.getPlayer(getUsernameOrThrow(principal))
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
 
     /**
      * Changes the Player's position relative to the Player's current position.
@@ -41,7 +56,7 @@ public class CommandController {
     }
 
     /**
-     * Registers a Player to the current user.
+     * Registers a Player to the current User.
      *
      * @param player The player to be registered.
      * @return A Player entity.
