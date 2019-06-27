@@ -16,7 +16,7 @@ public class DefaultContext implements Context {
     @Getter private String command;
 
     /**
-     * The User provided player is an unvalidated entity and should not be trusted.
+     * The User provided player_find is an unvalidated entity and should not be trusted.
      */
     @Getter @Setter private Player userProvidedPlayer;
 

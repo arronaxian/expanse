@@ -30,7 +30,7 @@ public class CommandProcess {
     private final static ExecutorService executor = Executors.newFixedThreadPool(5);
     private final static int FUTURE_TIMEOUT_IN_SECONDS = 1000;
 
-    public enum Sequence { none, register, move, player, view };
+    public enum Sequence { none, player_register, player_move, player_find, view };
 
     public Result process(Sequence sequence, Context context) {
         log.info("Process sequence start '{}'", sequence.name());
@@ -73,7 +73,7 @@ public class CommandProcess {
      */
     private List<Command> buildSequence(Sequence sequence) {
         switch ( sequence ) {
-            case register:
+            case player_register:
                 // Register a Player with a User
                 return List.of(
                         SequenceCommand.create("CommandEffects.preparePlayer", CommandEffects.preparePlayer),
@@ -81,7 +81,7 @@ public class CommandProcess {
                         SequenceCommand.create("CommandPlayer.search", CommandPlayer.search),
                         SequenceCommand.create("CommandUser.addPlayer", CommandUser.addPlayer)
                 );
-            case move:
+            case player_move:
                 // Move a Player
                 return List.of(
                         SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
@@ -90,7 +90,7 @@ public class CommandProcess {
                         SequenceCommand.create("CommandEffects.movePlayer", CommandEffects.movePlayer),
                         SequenceCommand.create("CommandPlayer.set", CommandPlayer.set)
                 );
-            case player:
+            case player_find:
                 // Get a Player
                 return List.of(
                         SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),

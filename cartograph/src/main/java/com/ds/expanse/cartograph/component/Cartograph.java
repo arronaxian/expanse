@@ -19,8 +19,11 @@ public class Cartograph {
 
     Map<Integer, String> mapping = new HashMap<>();
 
-    private final static Function<Float, Integer> perlinConversion = (Float perlinValue) -> {
-        return Math.round( ( perlinValue + 1 ) * 5 );
+    private final static Function<Double, Integer>
+            perlinConversion = perlinValue -> {
+        int value = (int)(Math.round(perlinValue *10)+10);
+        System.out.println(Math.round(perlinValue *10)+10);
+        return value;
     };
 
     public MapGrid getPerlinMapGrid(int latitude, int longitude) {
@@ -29,6 +32,10 @@ public class Cartograph {
         MapGrid grid = new MapGrid(latitude, longitude, Character.forDigit(convertedPerlinValue,10));
 
         return grid;
+    }
+
+    public int getPerlin(int x, int y) {
+        return perlinNoise.perlin(x, y, perlinConversion);
     }
 
     public MapGrid getPerlimMapGrid(int x, int y, MapOverlay.Heading heading) {

@@ -6,13 +6,14 @@ var expanseApp = angular.module('expanseApp', [
   'expanseApp.viewLogin',
   'expanseApp.viewRegister',
   'expanseApp.play',
-  'expanseApp.view2',
   'expanseApp.version'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
 
   $routeProvider.otherwise({redirectTo: '/viewLogin'});
+}]).
+controller(['$scope', function($scope) {
 }]);
 
 

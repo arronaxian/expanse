@@ -29,7 +29,7 @@ public interface CommandEffects {
     };
 
     /**
-     * Moves a Player.
+     * Moves a Player.s
      */
     Command movePlayer = (context) -> {
         final DefaultContext defaultContext = DefaultContext.of(context).get();

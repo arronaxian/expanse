@@ -38,7 +38,7 @@ public class CommandController {
      * Changes the Player's position relative to the Player's current position.
      *
      * @param principal The Principal entity.
-     * @param playerName The name of the player.
+     * @param playerName The name of the player_find.
      * @param heading The direction of travel.
      * @param units Optional units of travel (default is 1).
      * @return A PlayerPosition entity.
@@ -58,7 +58,7 @@ public class CommandController {
     /**
      * Registers a Player to the current User.
      *
-     * @param player The player to be registered.
+     * @param player The player_find to be registered.
      * @return A Player entity.
      */
     @PostMapping(path="/player/register")
@@ -69,6 +69,13 @@ public class CommandController {
         } else {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping(path="/player/{name}")
+    public ResponseEntity<?> getPlayer(Principal principal, @PathVariable(name="name", required = false) String playerName) {
+        return service.getPlayer(principal.getName(), playerName)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     /**

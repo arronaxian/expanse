@@ -23,3 +23,10 @@
   content: "|";
   padding-right: 0.3em;
 }
+
+#cartography {
+  width : 300px;
+  height : 300px;
+  border: solid blue 1px;
+}
+

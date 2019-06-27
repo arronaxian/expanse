@@ -2,15 +2,12 @@ package com.ds.expanse.command.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.ds.expanse.command.component.utility.SpringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import com.ds.expanse.command.service.InMemoryUserStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -43,7 +40,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        InMemoryUserStore.getInMemoryUserStore().put("Authorization", header);
+        // Store the authorization token and username
+        InMemoryUserStore.getInMemoryUserStore().put("authorization", header);
+        InMemoryUserStore.getInMemoryUserStore().put("username", authentication.getName());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

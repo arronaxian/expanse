@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -69,7 +70,7 @@ public class PlayerController {
      * @return The Player response entity.
      */
     @GetMapping
-    public ResponseEntity<?> search(@RequestParam Map<String,String> searchCriteria) {
+    public ResponseEntity<?> search(Principal principal, @RequestParam Map<String,String> searchCriteria) {
 
         // Build search criteria
         Player player = new Player();

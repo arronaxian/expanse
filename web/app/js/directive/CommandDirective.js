@@ -4,7 +4,7 @@ expanseApp.directive('command', ['CommandService', function(commandService) {
     return {
         restrict:'E',
         transclude: true,
-        scope:{ position : '=' },
+        scope:{ player : '=' },
         controller:['$scope', function CommandController($scope) {
             $scope.commandContext = {
                 command : ''
@@ -28,12 +28,12 @@ expanseApp.directive('command', ['CommandService', function(commandService) {
                     }
 
                     // Hard coded until registration works properly.
-                    commandService.movePlayer('buttercup001', heading, function(response, status) {
+                    commandService.movePlayer($scope.player.name, heading, function(response, status) {
                         if ( status === 200 ) {
                             console.log("command:onCommand " + heading);
 
-                            $scope.position.x = response.x;
-                            $scope.position.y = response.y;
+                            $scope.player.position.x = response.x;
+                            $scope.player.position.y = response.y;
                         }
 
                         $scope.commandContext.command = '';

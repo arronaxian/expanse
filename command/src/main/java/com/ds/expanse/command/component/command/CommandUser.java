@@ -22,7 +22,9 @@ public interface CommandUser {
         CommandResult result = new CommandResult("CommandUser.addPlayer");
         DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
-                    restClient.addURIParameters("username", defaultContext.getUserName());
+                    defaultContext.getSecurityAdapter().addSecurity(restClient);
+                    restClient.addURIParameters("username",
+                            defaultContext.getSecurityAdapter().getUserName());
                     restClient.addURIParameters("id", defaultContext.getPlayer().getId());
                     restClient.put( 200);
                 });
@@ -45,7 +47,10 @@ public interface CommandUser {
         CommandResult result = new CommandResult("CommandUser.getPlayer");
         DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
-                    restClient.addURIParameters("username", defaultContext.getUserName());
+                    defaultContext.getSecurityAdapter().addSecurity(restClient);
+                    restClient.addURIParameters("username",
+                            defaultContext.getSecurityAdapter().getUserName());
+
                     restClient.get( List.class, 200)
                             .ifPresent(playerIds -> {
                                 final Player player = new Player();

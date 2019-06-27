@@ -12,6 +12,8 @@ public interface CommandPlayer {
     Logger log = LogManager.getLogger(CommandPlayer.class);
     int PORT_NUMBER = 9090;
 
+    enum Sequence { none, register, move, find, view };
+
     /**
      * Creates a new Player.
      */
@@ -23,7 +25,7 @@ public interface CommandPlayer {
         CommandResult result = CommandResult.badRequest("CommandPlayer.create");
         DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
-                    defaultContext.getSecurityAdapter().addSecurityHeaders(defaultContext.getUserName(), restClient);
+                    defaultContext.getSecurityAdapter().addSecurity(restClient);
                     restClient.post(defaultContext.getPlayer(), 201);
                 });
 
@@ -45,7 +47,7 @@ public interface CommandPlayer {
         CommandResult result = CommandResult.badRequest("CommandPlayer.set");
         DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
-                    defaultContext.getSecurityAdapter().addSecurityHeaders(defaultContext.getUserName(), restClient);
+                    defaultContext.getSecurityAdapter().addSecurity(restClient);
                     restClient.post(defaultContext.getPlayer(), 200);
                 });
 
@@ -67,7 +69,7 @@ public interface CommandPlayer {
         CommandResult result = CommandResult.badRequest("CommandPlayer.search");
         DefaultContext.of(context)
                 .ifPresent(defaultContext -> {
-                    defaultContext.getSecurityAdapter().addSecurityHeaders(defaultContext.getUserName(), restClient);
+                    defaultContext.getSecurityAdapter().addSecurity(restClient);
                     restClient.addQueryParameter("id", defaultContext.getPlayer().getId());
                     restClient.addQueryParameter("name", defaultContext.getPlayer().getName());
                     restClient.get(Player.class,200)

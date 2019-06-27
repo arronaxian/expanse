@@ -9,25 +9,31 @@
         <title>Expanse</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="lib/html5-boilerplate/dist/css/normalize.css">
-        <link rel="stylesheet" href="lib/html5-boilerplate/dist/css/main.css">
         <link rel="stylesheet" href="css/app.css">
-        <script src="lib/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
     </head>
     <body>
         <ul class="menu">
             <li><a href="#!/login">login</a></li>
             <li><a href="#!/register">register</a></li>
-            <li><a href="#!/play">play</a></li>
-            <li><a href="#!/view2">view2</a></li>
+            <li><a href="./view/play/play.html">play</a></li>
+            <li><a href="./view/arcade/arcade.html">arcade</a></li>
+
+
         </ul>
 
         <div ng-view></div>
 
-        <div>version <span app-version></span></div>
+        <!--div><span app-version></span></div-->
+
+        <script src="lib/phaser/phaser.min.js"></script>
+        <script src="lib/phaser/phaser-arcade-physics.min.js"></script>
+        <script src="js/gameengine/entities.js"></script>
+        <script src="js/gameengine/RemotePerlin.js"></script>
+        <script src="js/gameengine/ArcadeScene.js"></script>
 
         <script src="lib/angular/angular.js"></script>
-        <script src="lib/angular-route/angular-route.js"></script>
+        <script src="lib/angular/angular-route.js"></script>
+        <script src="lib/jquery/jquery.js"></script>
         <script src="js/ExpanseApp.js"></script>
         <script src="js/service/UserService.js"></script>
         <script src="js/service/CartographService.js"></script>
@@ -35,13 +41,10 @@
         <script src="js/directive/CommandDirective.js"></script>
         <script src="js/directive/CartographDirective.js"></script>
         <script src="view/play/play.js"></script>
-        <script src="view/view2/view2.js"></script>
         <script src="view/login/login.js"></script>
         <script src="view/register/register.js"></script>
-
-
         <script src="core/version/version.js"></script>
         <script src="core/version/version-directive.js"></script>
         <script src="core/version/interpolate-filter.js"></script>
-    </body>
+  </body>
 </html>

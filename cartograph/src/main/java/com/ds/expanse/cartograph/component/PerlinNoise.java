@@ -24,7 +24,8 @@ public interface PerlinNoise {
      * @param y the y position
      * @return A value between -1 and 1; if out of bounds return 1.
      */
-    float perlin(int x, int y);
+    double perlin(int x, int y);
+    double perlin2(double x, double y);
 
     /**
      * Compute perlin noise at coordinates x,y and covert to int.
@@ -32,7 +33,7 @@ public interface PerlinNoise {
      * @param conversion A function with Perlin to int conversions.
      * @return The converted Perlin noise value.  if out of bounds return 1 to conversion.
      */
-    int perlin(float perlinValue, Function<Float, Integer> conversion);
+    int perlin(double perlinValue, Function<Double, Integer> conversion);
 
     /**
      * Compute perlin noise at coordinates x,y and covert to int.
@@ -41,5 +42,5 @@ public interface PerlinNoise {
      * @param conversion A function with Perlin to int conversions.
      * @return The converted Perlin noise value.  if out of bounds return 1 to conversion.
      */
-    int perlin(int x, int y, Function<Float, Integer> conversion);
+    int perlin(int x, int y, Function<Double, Integer> conversion);
 }

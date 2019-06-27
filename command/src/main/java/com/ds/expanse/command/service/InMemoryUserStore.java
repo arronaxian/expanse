@@ -1,4 +1,4 @@
-package com.ds.expanse.command.security;
+package com.ds.expanse.command.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -19,17 +19,17 @@ public class CommandControllerService {
     CommandProcess processor;
 
     /**
-     * Change the player position relative by units.
-     * @param playerName The name of the player to change.
+     * Change the player_find position relative by units.
+     * @param playerName The name of the player_find to change.
      * @param heading The heading.
-     * @param units The units to move.
+     * @param units The units to player_move.
      * @return
      */
     public Optional<PlayerPosition> changePlayerPosition(String user, String playerName, String heading, int units) {
         final DefaultContext context = new DefaultContext(heading);
         context.setUserProvidedPlayer(new Player(playerName));
 
-        Result<Boolean> result = processor.process(CommandProcess.Sequence.move, context);
+        Result<Boolean> result = processor.process(CommandProcess.Sequence.player_move, context);
 
         return result.outcome() ?
                 Optional.ofNullable(context.getPlayer().getPosition()) :
@@ -39,14 +39,14 @@ public class CommandControllerService {
     /**
      * Register a Player to the User.
      * @param userName The User association.
-     * @param player The player to be registered.
-     * @return The player entity.
+     * @param player The player_find to be registered.
+     * @return The player_find entity.
      */
     public Optional<Player> registerPlayer(String userName, Player player) {
         final DefaultContext context = new DefaultContext(userName, "create");
         context.setUserProvidedPlayer(player);
 
-        final Result<Boolean> result = processor.process(CommandProcess.Sequence.register, context);
+        final Result<Boolean> result = processor.process(CommandProcess.Sequence.player_register, context);
 
         return result.outcome() ?
                 Optional.ofNullable(context.getPlayer()) :
@@ -56,10 +56,9 @@ public class CommandControllerService {
     /**
      * Get Player for User
      */
-    public Optional<Player> getPlayer(String userName) {
-        final DefaultContext context = new DefaultContext(userName, "player");
-
-        final Result<Boolean> result = processor.process(CommandProcess.Sequence.player, context);
+    public Optional<Player> getPlayer(String userName, String ... playerNames) {
+        final DefaultContext context = new DefaultContext(userName, "player_find");
+        final Result<Boolean> result = processor.process(CommandProcess.Sequence.player_find, context);
 
         return result.outcome() ?
                 Optional.ofNullable(context.getPlayer()) :

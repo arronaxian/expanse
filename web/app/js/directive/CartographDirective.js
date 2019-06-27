@@ -6,7 +6,8 @@ expanseApp.directive('cartograph', function() {
         scope: {
             position : '=position'
         },
-        link:function($, scope, element) {
+        link:function(scope, element, attrs) {
+
         },
         controller : ['$scope', 'CartographService', function($scope, cartographService) {
             var that = this;
@@ -20,62 +21,76 @@ expanseApp.directive('cartograph', function() {
             }
 
             $scope.getGameMap = function() {
-                cartographService.getMapGridRange($scope.position.x, $scope.position.y, that.areaSize, that.areaSize, function (mapGridRange, status) {
-                    console.log('cartograph: getMapGridRange');
-                    if (200 === status) {
+                if ($scope.position) {
+                    cartographService.getMapGridRange($scope.position.x, $scope.position.y, that.areaSize, that.areaSize, function (mapGridRange, status) {
+                        console.log('cartograph: getMapGridRange');
+                        if (200 === status) {
+                            // Copy the data into back buffer fullMap
+                            var upperLeftX = $scope.position.x - that.areaSize;
+                            var upperLeftY = $scope.position.y - that.areaSize;
+                            var lowerRightX = $scope.position.x + that.areaSize;
+                            var lowerRightY = $scope.position.y + that.areaSize;
 
-                        // Copy the data into back buffer fullMap
-                        var upperLeftX = $scope.position.x - that.areaSize;
-                        var upperLeftY = $scope.position.y - that.areaSize ;
-                        var lowerRightX = $scope.position.x + that.areaSize;
-                        var lowerRightY = $scope.position.y + that.areaSize;
+                            // add the data to the full map
+                            var index = 0;
+                            for (var y = upperLeftY; y <= lowerRightY; y++) {
+                                for (var x = upperLeftX; x <= lowerRightX; x++) {
+                                    that.fullMap[y][x] = mapGridRange[index].tile;
+                                    index++;
+                                }
+                            }
 
-                        // add the data to the full map
-                        var index = 0;
-                        for ( var y = upperLeftY; y <= lowerRightY; y ++) {
-                            for (var x = upperLeftX; x <= lowerRightX; x++) {
-                                that.fullMap[y][x] = mapGridRange[index].tile;
-                                index ++;
+                            // Build the view map from the fullMap
+                            var half = 5;
+
+                            upperLeftX = $scope.position.x - half;
+                            lowerRightX = $scope.position.x + half;
+                            upperLeftY = $scope.position.y - half;
+                            lowerRightY = $scope.position.y + half;
+                            for (var y = upperLeftY; y <= lowerRightY; y++) {
+                                for (var x = upperLeftX; x <= lowerRightX; x++) {
+                                    var columnIndex = y - upperLeftY;
+                                    var rowIndex = x - upperLeftX;
+
+                                    $scope.cartographContext.map[columnIndex][rowIndex] = that.fullMap[y][x];
+                                }
                             }
                         }
-
-                        // Build the view map from the fullMap
-                        var half = 5;
-
-                        upperLeftX = $scope.position.x - half;
-                        lowerRightX = $scope.position.x + half;
-                        upperLeftY = $scope.position.y - half;
-                        lowerRightY = $scope.position.y + half;
-                        for ( var y = upperLeftY; y <= lowerRightY; y++ ) {
-                            for ( var x = upperLeftX; x <= lowerRightX; x ++ ) {
-                                var columnIndex = y - upperLeftY;
-                                var rowIndex = x - upperLeftX;
-
-                                $scope.cartographContext.map[columnIndex][rowIndex] = that.fullMap[y][x];
-                            }
-                        }
-                    }
-                });
+                    });
+                }
             };
 
             var init = function() {
-                $scope.$watch('position.x', $scope.getGameMap);
-                $scope.$watch('position.y', $scope.getGameMap);
+                var img = new Image();
+                img.onload = function() {
+                    var ctx = document.getElementById('cartography').getContext("2d");
 
-                // Initialize the map with 0 data.
-                var mapSize = that.fullMap.length;
+                    $scope.img = img;
 
-                for ( var c = 0; c < 500; c++) {
-                    that.fullMap[c] = new Array(500);
-                    that.fullMap[c].fill("0");
+                    ctx.drawImage(img, 50,50,50,50);
+                    ctx.drawImage(img, 96,50,50,50);
+                    ctx.drawImage(img, 74,64,50,50);
+
+                    // Initialize the map with 0 data.
+                    var mapSize = that.fullMap.length;
+
+                    for (var c = 0; c < 500; c++) {
+                        that.fullMap[c] = new Array(500);
+                        that.fullMap[c].fill("0");
+                    }
+
+                    for (var c = 0; c < that.viewSize; c++) {
+                        $scope.cartographContext.map[c] = new Array(that.viewSize);
+                        $scope.cartographContext.map[c].fill("0");
+                    }
+
+                    $scope.getGameMap();
+
+                    $scope.$watch('position.x', $scope.getGameMap);
+                    $scope.$watch('position.y', $scope.getGameMap);
                 }
 
-                for ( var c = 0; c < that.viewSize ; c++) {
-                    $scope.cartographContext.map[c] = new Array(that.viewSize);
-                    $scope.cartographContext.map[c].fill("0");
-                }
-
-                $scope.getGameMap();
+                img.src = 'img/5.svg';
             };
 
             init();
