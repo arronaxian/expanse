@@ -39,6 +39,10 @@ expanseApp.directive('command', ['CommandService', function(commandService) {
                         $scope.commandContext.command = '';
                     });
                 }
+            };
+
+            $scope.sayHello = function() {
+                console.log('hello');
             }
         }],
         templateUrl: 'js/directive/commandTemplate.html'

@@ -37,7 +37,7 @@ public interface CommandUser {
     };
 
     /**
-     * Gets the Player Id from the User
+     * Gets the Player Id for the User
      */
     Command getPlayer = (context) -> {
         log.info("CommandUser.getPlayer");
@@ -57,6 +57,8 @@ public interface CommandUser {
                                 player.setId(playerIds.get(0));
 
                                 defaultContext.setPlayer(player);
+
+                                defaultContext.getEngineAdapter().addPlayer(player);
                             });
                 });
 

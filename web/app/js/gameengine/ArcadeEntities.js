@@ -16,6 +16,8 @@ class Chunk {
     }
 
     load() {
+        let minPerlin = 99;
+        let maxPerlin = -99;
         if (!this.isLoaded) {
             for (var x = 0; x < this.scene.chunkSize; x++) {
                 for (var y = 0; y < this.scene.chunkSize; y++) {
@@ -28,13 +30,20 @@ class Chunk {
                     var animationKey = "";
 
                     let type = 0;
-                    if (perlinValue < 0) {
-                        key = "sprGrass";
-                        type = 0;
-                    } else if (perlinValue >= 0.0 && perlinValue < 0.2) {
+
+                    minPerlin = Math.min(minPerlin, perlinValue);
+                    maxPerlin = Math.max(maxPerlin, perlinValue);
+
+                    if (perlinValue < -0.3) {
                         key = "sprSand";
+                        type = 0;
+                    } else if ( perlinValue >= -0.3 && perlinValue < 0.0 ) {
+                            key = "sprTree";
+                            type = 1;
+                    } else if (perlinValue >= 0.0 && perlinValue < 0.4) {
+                        key = "sprGrass";
                         type = 1;
-                    } else if (perlinValue >= 0.2) {
+                    } else if (perlinValue >= 0.4) {
                         key = "sprWater";
                         animationKey = "sprWater";
                         type = 2;
@@ -48,8 +57,12 @@ class Chunk {
                 }
             }
 
+            console.log(minPerlin,maxPerlin);
+
             this.isLoaded = true;
         }
+
+
     }
 }
 
@@ -64,6 +77,8 @@ class Tile extends Phaser.GameObjects.Sprite {
 }
 
 class Player extends Phaser.GameObjects.Sprite {
+    heading = 'stop';
+
     constructor(scene, x, y, key, type) {
         super(scene, x, y, key);
         this.newX = x;
@@ -79,18 +94,22 @@ class Player extends Phaser.GameObjects.Sprite {
 
     moveNorth() {
         this.newY = this.y - this.moveSize;
+        this.heading = 'north';
     }
 
     moveSouth() {
         this.newY = this.y + this.moveSize;
+        this.heading = 'south';
     }
 
     moveEast() {
         this.newX = this.x + this.moveSize;
+        this.heading = 'east';
     }
 
     moveWest() {
         this.newX = this.x - this.moveSize;
+        this.heading = 'west';
     }
 
     move() {
@@ -132,11 +151,44 @@ class Player extends Phaser.GameObjects.Sprite {
 }
 
 class Dragon extends Player {
+    targets = [];
+
     constructor(scene, x, y, key, type) {
         super(scene, x, y, key, type);
+
+        this.start();
+    }
+
+    addTarget(player) {
+        this.targets.push(player);
     }
 
     canMove(terrain) {
         return true;
+    }
+
+    hunt(me) {
+        me.targets.forEach(function(target) {
+            me.moveTowards(target);
+            me.move();
+        })
+    }
+
+    start() {
+        var timer = this.scene.time.addEvent({
+            delay: 5000,
+            args: [this],
+            callback: this.hunt,
+            loop: true
+        });
+    }
+
+    stop() {
+    }
+
+    processEvent(me) {
+        me.targets.forEach(function(target) {
+            me.moveTowards(target);
+        })
     }
 }

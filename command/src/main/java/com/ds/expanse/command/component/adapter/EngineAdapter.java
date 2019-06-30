@@ -1,11 +1,12 @@
 package com.ds.expanse.command.component.adapter;
 
-import com.ds.expanse.command.engine.Cartography;
+import com.ds.expanse.command.engine.GameEngine;
 import com.ds.expanse.command.model.spi.cartograph.MapGrid;
 import com.ds.expanse.command.model.spi.player.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Command process engine engineAdapter to Engine functions.
@@ -13,9 +14,17 @@ import org.springframework.stereotype.Service;
 @Component
 public class EngineAdapter {
     @Autowired
-    Cartography cartography;
+    GameEngine gameEngine;
 
     public boolean canMove(Player player, MapGrid grid) {
         return true;
+    }
+
+    public void addPlayer(Player player) {
+        gameEngine.addPlayer(player);
+    }
+
+    public List<Integer> getPlayersNearMe(Player player) {
+        return gameEngine.getPlayersNearMe(player);
     }
 }

@@ -20,4 +20,18 @@ public class Player {
     public Player(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        try {
+            return ((Player)other).id.equalsIgnoreCase(this.id);
+        } catch ( Exception e ) {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
 }

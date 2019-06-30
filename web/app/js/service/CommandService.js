@@ -1,10 +1,21 @@
 'use strict';
 
 expanseApp.service('CommandService', ['$http','UserService', function($http, userService) {
-    this.getPlayer = function(playerName, callback) {
-        var params = {};
+    /**
+     * Flag to ensure only one move request can be made at a time.
+     * @type {boolean}
+     */
+    this.isMovingPlayer = false;
 
-        var url = 'http://localhost:9091/command/player/';
+    /**
+     * Gets the Player by name.
+     * @param playerName (Optional) player name.
+     * @param callback The callback.
+     */
+    this.getPlayer = function(playerName, callback) {
+        let params = {};
+
+        let url = 'http://localhost:9091/command/player/';
         if ( playerName ) {
             url += playerName;
         }
@@ -22,9 +33,21 @@ expanseApp.service('CommandService', ['$http','UserService', function($http, use
     };
 
 
+    /**
+     * Move the Player in the direction of heading.
+     * @param playerName The Player's name.
+     * @param heading The heading (north, south, east, west).
+     * @param callback The response data - {x:###,y:###}
+     */
     this.movePlayer = function(playerName, heading, callback) {
-        var params = { "heading":heading };
+        if ( this.isMovingPlayer ) {
+            return;
+        } else {
+            this.isMovingPlayer = true;
+        }
 
+        let params = { "heading":heading };
+        let service = this;
         $http({
             method: 'PUT',
             params : params,
@@ -32,9 +55,9 @@ expanseApp.service('CommandService', ['$http','UserService', function($http, use
             url: 'http://localhost:9091/command/player/'+playerName+'/position'
         }).then(function(response) {
             callback(response.data, response.status);
-        },
-            function(response) {
-                console.log('error');
+            service.isMovingPlayer = false;
+        },function(response) {
+            service.isMovingPlayer = false;
         });
     };
 }]);

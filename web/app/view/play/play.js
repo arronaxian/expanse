@@ -1,14 +1,9 @@
 'use strict';
 
-angular.module('expanseApp.play', ['ngRoute'])
-
-.config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/play', {
-      templateUrl: 'view/play/play.html',
-      controller: 'PlayController'
-    });
-}]).controller('PlayController', ['$scope', 'CommandService', function($scope, commandService) {
-    var gameEngineConfig = {
+let expanseApp = angular.module('expanseApp', [])
+.controller('PlayController', ['$scope', 'CommandService', function($scope, commandService) {
+    // Phaser game engine configuation.
+    let gameEngineConfig = {
         type: Phaser.WEBGL,
         width: 640,
         height: 640,
@@ -32,6 +27,14 @@ angular.module('expanseApp.play', ['ngRoute'])
         initialize : true
     };
 
+    $scope.movePlayer = function(heading, callback) {
+        commandService.movePlayer($scope.playContext.player.name, heading, callback);
+    };
+
+    $scope.isMovingPlayer = function() {
+        return commandService.isMovingPlayer;
+    };
+
     /**
      * Initializes the game.
      */
@@ -39,13 +42,11 @@ angular.module('expanseApp.play', ['ngRoute'])
         if ( $scope.playContext.initialize ) {
             commandService.getPlayer(undefined, function (data) {
                 $scope.playContext.player = data;
+
+                let game = new Phaser.Game(gameEngineConfig);
             });
 
             $scope.playContext.initialize = false;
-        }
-
-        if ( !$scope.gameController ) {
-            $scope.gameController = new Phaser.Game(gameEngineConfig);
         }
     };
 

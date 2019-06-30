@@ -29,7 +29,7 @@ public interface CommandEffects {
     };
 
     /**
-     * Moves a Player.s
+     * Moves a Player.
      */
     Command movePlayer = (context) -> {
         final DefaultContext defaultContext = DefaultContext.of(context).get();
@@ -45,6 +45,20 @@ public interface CommandEffects {
         } else {
             result.setSuccess(false);
         }
+
+        return result;
+    };
+
+    /**
+     * Gets (other) Players near me.
+     */
+    Command getPlayersNearMe = (context) -> {
+        CommandResult result = new CommandResult("CommandEffects.getPlayersNearMe");
+
+        DefaultContext.of(context).ifPresent(defaultContext -> {
+            defaultContext.setPlayersNearMe(context.getEngineAdapter().getPlayersNearMe(defaultContext.getPlayer()));
+            result.setSuccess(true);
+        });
 
         return result;
     };

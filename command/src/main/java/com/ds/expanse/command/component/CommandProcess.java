@@ -30,7 +30,7 @@ public class CommandProcess {
     private final static ExecutorService executor = Executors.newFixedThreadPool(5);
     private final static int FUTURE_TIMEOUT_IN_SECONDS = 1000;
 
-    public enum Sequence { none, player_register, player_move, player_find, view };
+    public enum Sequence { none, player_register, player_move, player_find, players_near_me, view };
 
     public Result process(Sequence sequence, Context context) {
         log.info("Process sequence start '{}'", sequence.name());
@@ -73,16 +73,18 @@ public class CommandProcess {
      */
     private List<Command> buildSequence(Sequence sequence) {
         switch ( sequence ) {
+            // Register a Player with a User
             case player_register:
-                // Register a Player with a User
                 return List.of(
                         SequenceCommand.create("CommandEffects.preparePlayer", CommandEffects.preparePlayer),
                         SequenceCommand.create("CommandPlayer.create", CommandPlayer.create),
                         SequenceCommand.create("CommandPlayer.search", CommandPlayer.search),
                         SequenceCommand.create("CommandUser.addPlayer", CommandUser.addPlayer)
                 );
+
+            // Move a Player
             case player_move:
-                // Move a Player
+
                 return List.of(
                         SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
                         SequenceCommand.create("CommandPlayer.search", CommandPlayer.search),
@@ -90,11 +92,21 @@ public class CommandProcess {
                         SequenceCommand.create("CommandEffects.movePlayer", CommandEffects.movePlayer),
                         SequenceCommand.create("CommandPlayer.set", CommandPlayer.set)
                 );
+
+            // Get a Player
             case player_find:
-                // Get a Player
+
                 return List.of(
                         SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
                         SequenceCommand.create("CommandPlayer.search", CommandPlayer.search)
+                );
+
+            // Get Players near Me
+            case players_near_me:
+
+                return List.of(
+                        SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
+                        SequenceCommand.create("CommandEffects.getPlayersNearMe", CommandEffects.getPlayersNearMe)
                 );
             case none:
             default:

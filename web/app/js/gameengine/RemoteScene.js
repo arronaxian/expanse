@@ -85,20 +85,6 @@ class ArcadeScene extends Phaser.Scene {
             }
         }
 
-        // if (this.keyW.isDown) {
-        //     this.player1.moveNorth();
-        // }
-        // if (this.keyS.isDown) {
-        //     this.player1.moveSouth();
-        // }
-        // if (this.keyA.isDown) {
-        //     this.player1.moveWest();
-        // }
-        // if (this.keyD.isDown) {
-        //     this.player1.moveEast();
-        // }
-
-
         if (Phaser.Input.Keyboard.JustDown(this.keyW)) {
             this.player1.moveNorth();
         }
@@ -112,20 +98,9 @@ class ArcadeScene extends Phaser.Scene {
             this.player1.moveEast();
         }
 
-        if ( this.player1.isMovePending() ) {
-            let player = this.player1;
-            for ( let i in this.dragons) {
-                let dragon = this.dragons[i];
-                if ( this.canMove(dragon) ) {
-                    dragon.moveTowards(player);
-                    dragon.move();
-                }
-            };
-        }
-
-        if ( this.player1.isMovePending() ) {
-            this.canMove(this.player1) ? this.player1.move() : this.player1.retreat();
-        }
+         if ( this.player1.isMovePending() ) {
+             this.canMove(this.player1) ? this.player1.move() : this.player1.retreat();
+         }
 
         this.cameras.main.centerOn(this.player1.x, this.player1.y);
     }
@@ -151,5 +126,16 @@ class ArcadeScene extends Phaser.Scene {
             }
         }
         return null;
+    }
+
+    /**
+     * Gets an Angular scope object.
+     *
+     * @returns {*} $scope
+     */
+    getAngularScopeDelegate() {
+        let ctrlName = 'PlayController';
+        let sel = 'body[ng-controller="' + ctrlName + '"]';
+        return angular.element(sel).scope();
     }
 }

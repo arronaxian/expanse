@@ -9,6 +9,8 @@ class ArcadeScene extends Phaser.Scene {
             frameHeight: 16
         });
         this.load.image("sprSand",  "/web/app/img/sprSand.png");
+        this.load.image("sprMountain",  "/web/app/img/sprScrub.png");
+        this.load.image("sprTree",  "/web/app/img/sprTree.png");
         this.load.image("sprGrass", "/web/app/img/sprGrass.png");
         this.load.image("player",   "/web/app/img/player.png");
         this.load.image("dragon",   "/web/app/img/dragon.png");
@@ -27,11 +29,13 @@ class ArcadeScene extends Phaser.Scene {
 
         // player
         this.player1 = new Player(this,0,0,'player',1);
+
+        // Create enemies
         this.dragons = [];
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
+        for ( let i = 0; i < 10; i++ ) {
+            this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
+            this.dragons[i].addTarget(this.player1);
+        }
 
         this.chunks = [];
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -98,16 +102,6 @@ class ArcadeScene extends Phaser.Scene {
             this.player1.moveEast();
         }
 
-        if ( this.player1.isMovePending() ) {
-            let player = this.player1;
-            for ( let i in this.dragons) {
-                let dragon = this.dragons[i];
-                if ( this.canMove(dragon) ) {
-                    dragon.moveTowards(player);
-                    dragon.move();
-                }
-            };
-        }
 
         if ( this.player1.isMovePending() ) {
             this.canMove(this.player1) ? this.player1.move() : this.player1.retreat();

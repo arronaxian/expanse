@@ -31,7 +31,6 @@
                 }
             }
         };
-        console.log('caching ',areaX,areaY);
         precomp.push(currentArea);
 
         let auth = window.localStorage.getItem("com.ds.expanse.jwt");
@@ -63,7 +62,6 @@
                 }
                 currentArea.area = area;
                 currentArea.status = 2; // loaded
-                console.log('loaded (' + areaX + ',' + areaY +')');
             }).fail(function(data) {
                 currentArea.status = 3; // error
             });
@@ -78,7 +76,6 @@
     };
 
     module.load = function(x,y) {
-        console.log('precomp length ' + precomp.length);
         if ( precomp.length > 16 ) {
             precomp.shift(1);
         }

@@ -8,6 +8,7 @@ import com.ds.expanse.command.model.spi.player.PlayerPosition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -63,6 +64,12 @@ public class CommandControllerService {
         return result.outcome() ?
                 Optional.ofNullable(context.getPlayer()) :
                 Optional.empty();
+    }
+
+    public List<Integer> getPlayersNearMe(String userName) {
+        final DefaultContext context = new DefaultContext(userName, "players_near_me");
+        processor.process(CommandProcess.Sequence.players_near_me, context);
+        return context.getPlayersNearMe();
     }
 
 }

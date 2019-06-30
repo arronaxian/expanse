@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -57,7 +58,7 @@ public class CommandController {
 
     /**
      * Registers a Player to the current User.
-     *
+     * @param principal The Principal entity
      * @param player The player_find to be registered.
      * @return A Player entity.
      */
@@ -71,11 +72,27 @@ public class CommandController {
         }
     }
 
+    /**
+     * Gets the Player by Name.
+     * @param principal The Principal entity.
+     * @param playerName The name of the player.
+     * @return The Player instance.
+     */
     @GetMapping(path="/player/{name}")
     public ResponseEntity<?> getPlayer(Principal principal, @PathVariable(name="name", required = false) String playerName) {
         return service.getPlayer(principal.getName(), playerName)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    /**
+     * Gets the Players near me.
+     * @param principal The Principal entity
+     * @return A list, or empty.
+     */
+    @GetMapping(path="/player/near/me")
+    public ResponseEntity<List<Integer>> getPlayersNearMe(Principal principal) {
+        return ResponseEntity.ok(service.getPlayersNearMe(getUsernameOrThrow(principal)));
     }
 
     /**
