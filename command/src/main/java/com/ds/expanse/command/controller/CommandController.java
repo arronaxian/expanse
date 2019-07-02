@@ -90,7 +90,7 @@ public class CommandController {
      * @param principal The Principal entity
      * @return A list, or empty.
      */
-    @GetMapping(path="/player/near/me")
+    @GetMapping(path="/nonplayer/near/me")
     public ResponseEntity<List<Integer>> getPlayersNearMe(Principal principal) {
         return ResponseEntity.ok(service.getPlayersNearMe(getUsernameOrThrow(principal)));
     }

@@ -95,7 +95,6 @@ public class CommandProcess {
 
             // Get a Player
             case player_find:
-
                 return List.of(
                         SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
                         SequenceCommand.create("CommandPlayer.search", CommandPlayer.search)
@@ -103,7 +102,6 @@ public class CommandProcess {
 
             // Get Players near Me
             case players_near_me:
-
                 return List.of(
                         SequenceCommand.create("CommandUser.getPlayer", CommandUser.getPlayer),
                         SequenceCommand.create("CommandEffects.getPlayersNearMe", CommandEffects.getPlayersNearMe)

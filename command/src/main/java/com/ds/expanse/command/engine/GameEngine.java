@@ -12,16 +12,30 @@ public class GameEngine {
     private static final Map<String, Player> allPlayers = Collections.synchronizedMap(new HashMap<>());
     private static final Map<String, Player> allNonPlayers = Collections.synchronizedMap(new HashMap<>());
 
+    static {
+        for (int index = 1; index < 20; index++) {
+            final String id = "" + index;
+            allNonPlayers.computeIfAbsent("dragon" + index, (key) -> {
+                Player player = new Player();
+                player.setId(id);
+                player.setName(key);
+                player.setPosition(MathUtil.random(500), MathUtil.random(500));
+
+                return player;
+            });
+        }
+    }
+
     /**
      * Gets all players near me.
      * @param me The Player to compare.
      * @return An List of integers representing the type and position (x,y)
-     *      [type-1,x-position-1,y-position-1,type-2,x-position-2,y-position-2,...,type-n,x-position-n,y-position-n]
+     *      [id1,type-1,x-position-1,y-position-1,id2,type-2,x-position-2,y-position-2,...,idn,type-n,x-position-n,y-position-n]
      */
     public List<Integer> getPlayersNearMe(Player me) {
-        return allPlayers.values().stream()
-                .filter(other -> !me.equals(other) && MathUtil.inRange(me.getPosition(), other.getPosition(), 300) )
-                .flatMap(p -> Arrays.asList(1, p.getPosition().getX(), p.getPosition().getY()).stream())
+        return allNonPlayers.values().stream()
+                .filter(other -> !me.equals(other) && MathUtil.inRange(me.getPosition(), other.getPosition(), -1) )
+                .flatMap(p -> Arrays.asList(Integer.parseInt(p.getId()), 1, p.getPosition().getX(), p.getPosition().getY()).stream())
                 .collect(Collectors.toList());
     }
 

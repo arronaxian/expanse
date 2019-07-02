@@ -35,6 +35,10 @@ let expanseApp = angular.module('expanseApp', [])
         return commandService.isMovingPlayer;
     };
 
+    $scope.getNonPlayersNearMe = function(callback) {
+        return commandService.getNonPlayersNearMe(callback);
+    }
+
     /**
      * Initializes the game.
      */

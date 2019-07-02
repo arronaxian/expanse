@@ -7,7 +7,7 @@ class SceneMain extends Phaser.Scene {
         this.load.spritesheet("sprWater", "./img/sprWater.png", {
             frameWidth: 16,
             frameHeight: 16
-        });
+        });d
         this.load.image("sprSand", "./img/sprSand.png");
         this.load.image("sprGrass", "./img/sprGrass.png");
         this.load.image("player", "./img/player.png");

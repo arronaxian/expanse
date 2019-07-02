@@ -29,11 +29,20 @@ class ArcadeScene extends Phaser.Scene {
 
         // player
         this.player1 = new Player(this,0,0,'player',1);
+
         this.dragons = [];
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
-        this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
+        this.getAngularScopeDelegate().getNonPlayersNearMe(function(data) {
+            if ( data.length >= 3 ) {
+                for (let i = 0; i < data.length; i += 3) {
+                    this.dragons.push(new Dragon(this, data[i + 1] * 16, data[i + 2] * 16, 'dragon', 2));
+                }
+            }
+        });
+
+        //
+        // this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
+        // this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
+        // this.dragons.push(new Dragon(this,(Math.round(Math.random()*30))*16, (Math.round(Math.random()*20))*16, 'dragon', 2));
 
         this.chunks = [];
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -43,7 +52,7 @@ class ArcadeScene extends Phaser.Scene {
     }
 
     getChunk(x, y) {
-        var chunk = null;
+        let chunk = null;
         for (var i = 0; i < this.chunks.length; i++) {
             if (this.chunks[i].x == x && this.chunks[i].y == y) {
                 chunk = this.chunks[i];
@@ -73,7 +82,7 @@ class ArcadeScene extends Phaser.Scene {
                 snappedChunkY,
                 chunk.x,
                 chunk.y
-            ) < 8) {
+            ) < 4) {
                 if (chunk !== null) {
                     chunk.load();
                 }
@@ -115,9 +124,16 @@ class ArcadeScene extends Phaser.Scene {
         return player.canMove(tile.type);
     }
 
+    /**
+     * Gets a tile at (x,y).
+     * @param x
+     * @param y
+     * @returns {*}
+     */
     getTile(x,y) {
         let xChunk = Math.floor(x / 256);
         let yChunk = Math.floor(y / 256);
+
         let existingChunk = this.getChunk(xChunk, yChunk);
         let entries = existingChunk.tiles.children.entries;
         for ( let i = 0; i < entries.length; i++ ) {
@@ -125,6 +141,7 @@ class ArcadeScene extends Phaser.Scene {
                 return entries[i];
             }
         }
+
         return null;
     }
 
@@ -136,6 +153,7 @@ class ArcadeScene extends Phaser.Scene {
     getAngularScopeDelegate() {
         let ctrlName = 'PlayController';
         let sel = 'body[ng-controller="' + ctrlName + '"]';
+
         return angular.element(sel).scope();
     }
 }

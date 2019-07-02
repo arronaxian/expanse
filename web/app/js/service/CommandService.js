@@ -6,6 +6,7 @@ expanseApp.service('CommandService', ['$http','UserService', function($http, use
      * @type {boolean}
      */
     this.isMovingPlayer = false;
+    this.isGettingNonPlayerNearMe = false;
 
     /**
      * Gets the Player by name.
@@ -58,6 +59,30 @@ expanseApp.service('CommandService', ['$http','UserService', function($http, use
             service.isMovingPlayer = false;
         },function(response) {
             service.isMovingPlayer = false;
+        });
+    };
+
+    /**
+     * Gets an array of Non-Players near me
+     * @param callback The response data is an repeat array of type, x and y - [type,x,y...]
+     */
+    this.getNonPlayersNearMe = function(callback) {
+        if ( this.isGettingNonPlayerNearMe ) {
+            return;
+        } else {
+            this.isGettingNonPlayerNearMe = true;
+        }
+
+        let service = this;
+        $http({
+            method: 'GET',
+            headers: { 'Authorization' : userService.getJWTBearerToken() },
+            url: 'http://localhost:9091/command/nonplayer/near/me'
+        }).then(function(response) {
+            callback(response.data, response.status);
+            service.isGettingNonPlayerNearMe = false;
+        },function(response) {
+            service.isGettingNonPlayerNearMe = false;
         });
     };
 }]);

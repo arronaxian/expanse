@@ -21,6 +21,15 @@ public class Player {
         this.name = name;
     }
 
+    public void setPosition(int x, int y) {
+        if ( position == null ) {
+            position = new PlayerPosition(x, y);
+        } else {
+            position.setX(x);
+            position.setY(y);
+        }
+    }
+
     @Override
     public boolean equals(Object other) {
         try {

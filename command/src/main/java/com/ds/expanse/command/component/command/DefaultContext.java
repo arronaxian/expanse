@@ -28,7 +28,7 @@ public class DefaultContext implements Context {
     /**
      * A list of players near me as an array.
      */
-    @Setter @Getter private List<Integer> playersNearMe;
+    @Setter @Getter private List<Integer> playersNearMe = new ArrayList<>();
 
     /**
      * The Player's Map Grid
